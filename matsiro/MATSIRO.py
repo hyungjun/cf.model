@@ -71,18 +71,24 @@ class MATSIRO(object):
             print '>>> Configuring model setup ... [%s]'%os.path.join(self.prjDir,'src/proj/offmat','Mkinclude')
             self.mkinc.save('offmat')#, os.path.join(self.prjDir,'src/proj/offmat/'))
 
-        self.runscr = Runscript( runscrPath, self.mkinc  )
+#        self.runscr = Runscript( runscrPath, self.mkinc  )
 
 #        self.compile('dirs')
 #        self.compile('lib')
 #        self.compile('gcm')
 
-        self.runscr.save( 'default', datetime(2001,1,1), datetime(2010,1,1), delT='y');sys.exit()
+#        self.runscr.save( 'default', datetime(2001,1,1), datetime(2010,1,1), delT='y');sys.exit()
 
 
     def run(self):
 #        self.runscr.qsub(datetime(2000,1,1), qName='C10', nNode=1, nCPU=10, delT='y')
         return
+
+
+    def build(self):
+        self.compile('dirs')
+        self.compile('lib')
+        self.compile('gcm')
 
 
     def compile(self, target):
@@ -110,47 +116,5 @@ class MATSIRO(object):
 
         Popen(['ifort','--version'])
 
-
-#@ETA
-def main(args,opts):
-
-    print args
-    print opts
-
-    prjDir  = args[0]
-
-
-    if opts.new_prj:
-        Matsiro     = MATSIRO(opts.new_prj, 'w', prjDir)
-
-    elif opts.old_prj:
-        Matsiro     = MATSIRO(opts.old_prj, 'm', prjDir)
-
-
-    return
-
-
-if __name__=='__main__':
-    usage   = 'usage: %prog [options] arg'
-    version = '%prog 1.0'
-
-    parser  = OptionParser(usage=usage,version=version)
-
-    parser.add_option('-c','--create',action='store',dest='new_prj',
-                      help='create a new simulation project')
-
-    parser.add_option('-m','--modify',action='store',dest='old_prj',
-                      help='modify an existing simulation project')
-
-
-    (options,args)  = parser.parse_args()
-
-#    if len(args) == 0:
-#        parser.print_help()
-#    else:
-#        main(args,options)
-
-#    LOG     = LOGGER()
-    main(args,options)
 
 
