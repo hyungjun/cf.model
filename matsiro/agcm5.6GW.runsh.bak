@@ -1,0 +1,197 @@
+#!/bin/csh -fx
+#PBS -q C100
+#PBS -l select=5:ncpus=18:mpiprocs=18
+#PBS -l place=scatter
+#PBS -j oe
+#PBS -m ea
+#
+#      offline matsiro ELSE TEMPLATE
+#
+# NQS command
+#
+#
+source /etc/profile.d/modules.csh
+module switch intel/intel-12.0.2.137 intel/intel-14.0.2.144
+
+setenv F_UFMTENDIAN big
+#setenv NCPUS `cat ${PBS_NODEFILE} | wc -l`          # for naam
+#setenv OMP_NUM_THREADS $NCPUS                       # for naam
+
+setenv RUNNAME    `basename $0`
+setenv PRJNAME $1
+setenv YEAR $2
+
+setenv YEAR2 `expr $YEAR + 1`
+setenv RUNNAME2 $RUNNAME.`expr $YEAR - 1`
+
+setenv AGCMDIR  /data1/hjkim/ELSE/agcm5.6GW
+setenv AGCMDDIR /data1/hjkim/ELSE/${RUNNAME}/in/$PRJNAME        # forcing directory
+setenv AGCMODIR $AGCMDIR/out/${RUNNAME}.${PRJNAME}/${RUNNAME}.${YEAR} # Directory for Output
+
+############################################################
+setenv MNPE     90                                      # total # PE
+setenv SYSTEM   Naam-IFC                                  # CPU/OS System
+#setenv EXE      agcm5.1degml1soffmat.parallel_P${MNPE}         # Excutable file
+setenv EXE      agcm5.hlfml1soffmat.parallel_P${MNPE}         # Excutable file
+setenv RUN      $AGCMDIR/bin/$SYSTEM                   # Excutable dir
+setenv DATD     $AGCMDDIR                              # Directory for Data 
+setenv DATF     $AGCMDIR/expara                          # Directory for Data 
+setenv DIR      $AGCMODIR                             # Directory for Output
+setenv RSTFILE  $DIR/Restart                           # Restart File
+setenv INITFILE $DIR/Initial      # Initial File
+#
+#setenv MRUN     /opt/sgi/mpt/mpt-2.06/bin/mpirun     # mpirun
+setenv MRUN     mpiexec_mpt
+
+if (! -e $DIR) mkdir -p $DIR
+
+echo 'RUNNAME:' $RUNNAME , 'RUNNAME2:' $RUNNAME2
+echo 'OUTDIR:' $DIR
+
+if ( -e $DIR/../$RUNNAME2/Restart ) then
+    echo 'INITFILE: ' $INITFILE
+    cp $DIR/../$RUNNAME2/Restart $INITFILE
+else
+    echo 'INITFILE: NOT FOUND'
+endif
+    
+
+
+cd $DIR
+
+
+############################################################
+#
+#      parameters
+#
+############################################################
+cat << END_OF_DATA >! $DIR/SYSIN
+ &nmrun  run='$RUNNAME'                                  &end
+ &nmtime start=${YEAR},1,1,0,0,0, end=${YEAR2},1,1,0,0,0 &end
+ &nmmain step=1,  tunit='HOUR'                           &end
+ &nmdelt delt=1,  tunit='HOUR'                           &end
+ &nmlini wtbini=-11.0 &end
+############################################################
+ &nmsetd tdurad=6, utdrad='HOUR' &end
+ &nmmgnd wfxmax=1.0D-2, nitr=9                       &end  
+ &nmmwfp satmin=1.0D-3                               &end
+############################################################
+ &nmrivr vriver=0.5d0, rivmap='$DATF/flwdir.GSWP2.GCM.txt'      &end
+ &nmmedr medr=1.4d0                                       &end
+ &nmdata item='RIVSEQ',    file='${DATF}/RIVSEQ.gt'             &end
+############################################################
+ &nminit file='$INITFILE'                                &end
+ &nmrstr file='$RSTFILE', tintv=1, tunit='DAY', overwt=t, dfmt='UR4' &end
+ &nmdata item='GRIDX',  file='$DATF/gridx12.gt'  &end
+# &nmdata item='GRIDX',  file='$DATF/gridx-gswp2-ver2.gt'  &end
+ &nmdata item='GRZSD',  file='$DATF/grzsd-gtopo30.gt'  &end
+ &nmdata item='SLIDX',  file='$DATF/slidx-gswp2.gt'  &end
+ &nmdata item='GRALB',  file='$DATF/gralb-gswp2.gt'  &end
+ &nmdata item='GRALBN', file='$DATF/gralbn-gswp2.gt' &end
+# &nmdata item='GRTANS', file='$DATF/grtans-gswp2.gt' &end
+ &nmdata item='D0MAP', file='$DATF/d0final_sd.7.5max.gt'      &end
+ &nmgbnd file='$DATF/LANDPARA.gswp2.vegcv-1.try.nsoil50.11max.1deg.13layers'     &end
+# &nmgbnd file='$DATF/LANDPARA.gswp2.12'     &end
+ &nmsbnd file='$DATF/SOILPARA.gswp2.psiae.try.nsoil50.13max.1deg.13layers'              &end
+# &nmsbnd file='$DATF/SOILPARA.gswp2.psiae'              &end
+ &nmradt para='$DATF/PARA.CH37.MS8.ipcc.0009r'   &end
+  
+ &nmdata item='GRLAI',  file='$DATD/grlai/grlai100y_${YEAR}.gt', &end
+ &nmdata item='U',      file='$DATD/Wind/Wind_${YEAR}.gt',    &end
+ &nmdata item='Q',      file='$DATD/Qair/Qair_${YEAR}.gt',    &end
+ &nmdata item='T',      file='$DATD/Tair/Tair_${YEAR}.gt',    &end
+ &nmdata item='PRCP',   file='$DATD/Rainf/Rainf_${YEAR}.gt',  &end
+ &nmdata item='GSNWL',  file='$DATD/Snowf/Snowf_${YEAR}.gt',     &end
+ &nmdata item='PS',     file='$DATD/PSurf/PSurf_${YEAR}.gt',    &end
+ &nmdata item='SLRD',   file='$DATD/LWdown/LWdown_${YEAR}.gt',  &end
+ &nmdata item='SSRD',   file='$DATD/SWdown/SWdown_${YEAR}.gt',  &end
+ &nmdata item='CCOVER', file='$DATD/CCOV.default/CCOV_${YEAR}.gt',  &end
+
+ &nmchck ocheck=t, ockall=f                              &end
+ &nmdiag idiag=1, jdiag=1, tintv=1, tunit='HOUR'       &end
+ &nmhisd tintv=1, tavrg=1, tunit='DAY'                  &end
+
+ &nmhist item='GLTSN',  file='GLTSN'                    &end
+ &nmhist item='RFLXSD',file='RFLXSD'                     &end
+ &nmhist item='RFLXLD',file='RFLXLD'                     &end
+ &nmhist item='RFLXSL',file='RFLXSL'                     &end
+ &nmhist item='RFLXLL',file='RFLXLL'                     &end
+ &nmhist item='QFLUXL',file='EVAP'                     &end
+ &nmhist item='TFLUXL', file='SHFLUX'                     &end
+ &nmhist item='GFLUXS',file='GFLUXS'                     &end
+ &nmhist item='SNFLXS',file='SNFLXS'                     &end
+ &nmhist item='GPRCT', file='GPRCT'                      &end
+ &nmhist item='GSNWL', file='GSNWT'                      &end
+
+ &nmhist item='ETFLX',   file='etflx'                    &end
+ &nmhist item='EIFLX',   file='eiflx'                    &end
+ &nmhist item='EISUB',   file='eisub'                    &end
+ &nmhist item='EBFLX',   file='ebflx'                    &end
+ &nmhist item='EBSUB',   file='ebsub'                    &end
+# &nmhist item='RUNOFF',  file='runoff'                   &end
+# &nmhist item='RUNOFB',  file='runofb'                   &end
+# &nmhist item='RRUNOF',  file='rrunof'                   &end
+ &nmhist item='SNMLT',   file='SNMLT'                    &end
+# &nmhist item='SNFRZ',   file='SNFRZ'                    &end
+ &nmhist item='GLTSN',  file='GLTSN'                     &end
+
+ &nmhist item='BDGTW',  file='bdgt'                     &end
+ &nmhist item='RUNOFO', file='runofogw'                   &end
+ &nmhist item='RUNOFFGW', file='runoffgw'                   &end
+ &nmhist item='RUNOFBGW', file='runofbgw'                   &end
+ &nmhist item='NSOILGWO', file='nsoilgw'                   &end
+ &nmhist item='RUNOFSGW', file='runofsgw'                   &end
+ &nmhist item='RUNOFIGW', file='runofigw'                   &end
+# &nmhist item='DFW',      file='DFW'                      &end
+ &nmhist item='CAPFLGW',   file='CFLUX'                      &end
+# &nmhist item='WFLUX',   file='WFLUX'                      &end
+ &nmhist item='WFLINW',   file='WFLNSL'                      &end
+ &nmhist item='GLTC',   file='GLTC'                      &end
+ &nmhist item='GLTS',   file='GLTS'                      &end
+ &nmhist item='GRTSR',  file='GRTSR'                     &end
+ &nmhist item='ALB',    file='GRALB'                     &end
+ &nmhist item='DMSN',   file='DMSN' ,tavrg=0,tunit='DAY'                     &end
+# &nmhist item='SNRC',  file='SNRATC'                     &end
+ &nmhist item='GLWTOT',    file='GLWTOT',tavrg=0,tunit='DAY'                       &end
+ &nmhist item='GLWROOT',    file='GLWROOT',tavrg=0,tunit='DAY'                       &end
+ &nmhist item='GLW',    file='GLW',tavrg=0,tunit='DAY'                       &end
+ &nmhist item='GLSNW',    file='GLSNW',tavrg=0,tunit='DAY'                       &end
+ &nmhist item='GLG',    file='GLG'                       &end
+ &nmhist item='GLWC',   file='GLWC',tavrg=0,tunit='DAY'                      &end
+ &nmhist item='GST',    file='GST'                       &end
+ &nmhist item='SNSUB',    file='SNSUB'                       &end
+ &nmhist item='WTABGW',   file='wtabgw'    ,tavrg=0,tunit='DAY'               &end
+
+# &nmhist item='WTABD',  file='WTABD'                     &end
+ &nmhist item='SNRAT',  file='SNRAT'                     &end
+# &nmhist item='GLASN',  file='GLASN'                     &end
+ &nmhist item='SNWDPT', file='SNWDPT'                    &end
+
+ &nmhist item='GDRIV', file='gdriv', tintv=1, tavrg=1, tunit='DAY'  &end
+ &nmhist item='RFLOW', file='rflow', tintv=1, tavrg=1, tunit='DAY'  &end
+# &nmhist item='RRUNOF', file='rrunof', dfmt='UR4', tintv=1, tavrg=1, tunit='DAY'  &end
+
+#
+END_OF_DATA
+############################################################
+#
+# run
+#
+
+echo job started at `date`
+echo job started at `date` >> $DIR/date.txt
+##$MRUN -np $MNPE $RUN/$EXE
+#$MRUN -np $MNPE $RUN/$EXE >& $DIR/ERROUT
+##for aqua-IFC $MRUN -np $MNPE $RUN/$EXE < /dev/null >& $DIR/ERROUT
+#/usr/bin/time -p $MRUN -n $MNPE $RUN/$EXE < /dev/null >& $DIR/ERROUT
+##($RUN/$EXE < $DIR/SYSIN >> $DIR/SYSOUT) >& $DIR/ERROUT
+
+
+/usr/bin/time -p $MRUN dplace -s1 $RUN/$EXE >& $DIR/ERROUT
+#/usr/bin/time -p $MRUN -n $MNPE $RUN/$EXE < /dev/null >& $DIR/ERROUT
+#/usr/bin/time -p $MRUN -np $MNPE $RUN/$EXE < /dev/null >& $DIR/ERROUT
+
+echo job end at `date`
+echo job end at `date` >> $DIR/date.txt
+#end
+#exit

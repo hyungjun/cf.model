@@ -1,0 +1,282 @@
+default:
+  ['run','time','main','delt','lini','setd','mgnd','mwfp','rivr','medr',
+   'gbnd','sbnd','radt','init','rstr',
+   'data',
+   'chck', 'diag', 'hisd', 'hist'
+   ]
+
+run:
+  run: "'{runName}'"
+
+time:
+  start: '{sDTime}'
+  end: '{eDTime}'
+
+main:
+  step: 1
+  tunit: "'HOUR'"
+
+delt:
+  delt: 1
+  tunit: "'HOUR'"
+
+lini:
+  wtbini: -11.0
+
+setd:
+  tdurad: 6
+  utdrad: "'HOUR'"
+
+mgnd:
+  wfxmax: 1.0D-2
+  nitr: 9
+
+mwfp:
+  satmin: 1.0D-3
+
+rivr:
+  vriver: 0.5d0
+  rivmap: "'{fixparaDir}/flwdir.GSWP2.GCM.txt'"
+
+medr:
+  medr: 1.4d0
+
+init:
+  file: "'{initPath}'"
+
+rstr:
+  file: "'{rstPath}'"
+  tintv: 1
+  tunit: "'DAY'"
+  overwt: t
+  dfmt: "'UR4'"
+
+gbnd:
+  file: "'{fixparaDir}/LANDPARA.gswp2.vegcv-1.try.nsoil50.11max.1deg.13layers'"
+
+sbnd:
+  file: "'{fixparaDir}SOILPARA.gswp2.psiae.try.nsoil50.13max.1deg.13layers'"
+
+radt:
+  para: "'{fixparaDir}/PARA.CH37.MS8.ipcc.0009r'"
+
+data:
+  RIVSEQ:
+    file: "'{fixparaDir}/RIVSEQ.gt'"
+
+  GRIDX:
+    file: "'{fixparaDir}/gridx12.gt'"
+
+  GRZSD:
+    file: "'{fixparaDir}/grzsd-gtopo30.gt'"
+
+  SLIDX:
+    file: "'{fixparaDir}/slidx-gswp2.gt'"
+
+  GRALB:
+    file: "'{fixparaDir}/gralb-gswp2.gt'"
+
+  GRALBN:
+    file: "'{fixparaDir}/gralbn-gswp2.gt'"
+
+#  GRTANS:
+#    file: "'{fixparaDir}/grtans-gswp2.gt'"
+
+  D0MAP:
+    file: "'{fixparaDir}/d0final_sd.7.5max.gt'"
+
+  GRLAI:
+    file: "'{forcingDir}/grlai/grlai100y_{Year}.gt'"
+
+  U:
+    file: "'{forcingDir}/Wind/Wind_{Year}.gt'"
+
+  Q:
+    file: "'{forcingDir}/Qair/Qair_{Year}.gt'"
+
+  T:
+    file: "'{forcingDir}/Tair/Tair_{Year}.gt'"
+
+  PRCP:
+    file: "'{forcingDir}/Rainf/Rainf_{Year}.gt'"
+
+  GSNWL:
+    file: "'{forcingDir}/Snowf/Snowf_{Year}.gt'"
+
+  PS:
+    file: "'{forcingDir}/PSurf/PSurf_{Year}.gt'"
+
+  SLRD:
+    file: "'{forcingDir}/LWdown/LWdown_{Year}.gt'"
+
+  SSRD:
+    file: "'{forcingDir}/SWdown/SWdown_{Year}.gt'"
+
+  CCOVER:
+    file: "'{forcingDir}/CCOV.default/CCOV_{Year}.gt'"
+
+chck:
+  ocheck: t
+  ockall: f
+
+diag:
+  idiag: 1
+  jdiag: 1
+  tintv: 1
+  tunit: "'HOUR'"
+
+hisd:
+  tintv: 1
+  tavrg: 1
+  tunit: "'DAY'"
+
+hist:
+  GLTSN:
+    file: "'GLTSN'"
+  RFLXSD:
+    file: "'RFLXSD'"
+  RFLXLD:
+    file: "'RFLXLD'"
+  RFLXSL:
+    file: "'RFLXSL'"
+  RFLXLL:
+    file: "'RFLXLL'"
+  QFLUXL:
+    file: "'EVAP'"
+  TFLUXL:
+    file: "'SHFLUX'"
+  GFLUXS:
+    file: "'GFLUXS'"
+  SNFLXS:
+    file: "'SNFLXS'"
+  GPRCT:
+    file: "'GPRCT'"
+  GSNWL:
+    file: "'GSNWT'"
+
+  ETFLX:
+    file: "'etflx'"
+  EIFLX:
+    file: "'eiflx'"
+  EISUB:
+    file: "'eisub'"
+  EBFLX:
+    file: "'ebflx'"
+  EBSUB:
+    file: "'ebsub'"
+
+#  RUNOFF:
+#    file: "'runoff'"
+#  RUNOFB:
+#    file: "'runofb'"
+#  RRUNOF:
+#    file: "'rrunof'"
+
+  SNMLT:
+    file: "'SNMLT'"
+#  SNFRZ:
+#    file: "'SNFRZ'"
+  GLTSN:
+    file: "'GLTSN'"
+
+  BDGTW:
+    file: "'bdgt'"
+  RUNOFO:
+    file: "'runofogw'"
+  RUNOFFGW:
+    file: "'runoffgw'"
+  RUNOFBGW:
+    file: "'runofbgw'"
+  NSOILGWO:
+    file: "'nsoilgw'"
+  RUNOFSGW:
+    file: "'runofsgw'"
+  RUNOFIGW:
+    file: "'runofigw'"
+
+#  DFW:
+#    file: "'DFW'"
+
+  CAPFLGW:
+    file: "'CFLUX'"
+
+#  WFLUX:
+#    file: "'WFLUX'"
+
+  WFLINW:
+    file: "'WFLNSL'"
+  GLTC:
+    file: "'GLTC'"
+  GLTS:
+    file: "'GLTS'"
+  GRTSR:
+    file: "'GRTSR'"
+  ALB:
+    file: "'GRALB'"
+  DMSN:
+    file: "'DMSN'"
+    tavrg: 0
+    tunit: "'DAY'"
+
+#  SNRC:
+#    file: "'SNRATC'"
+
+  GLWTOT:
+    file: "'GLWTOT'"
+    tavrg: 0
+    tunit: "'DAY'"
+  GLWROOT:
+    file: "'GLWROOT'"
+    tavrg: 0
+    tunit: "'DAY'"
+  GLW:
+    file: "'GLW'"
+    tavrg: 0
+    tunit: "'DAY'"
+  GLSNW:
+    file: "'GLSNW'"
+    tavrg: 0
+    tunit: "'DAY'"
+  GLG:
+    file: "'GLG'"
+  GLWC:
+    file: "'GLWC'"
+    tavrg: 0
+    tunit: "'DAY'"
+  GST:
+    file: "'GST'"
+  SNSUB:
+    file: "'SNSUB'"
+  WTABGW:
+    file: "'wtabgw'"
+    tavrg: 0
+    tunit: "'DAY'"
+
+#  WTABD:
+#    file: "'WTABD'"
+
+  SNRAT:
+    file: "'SNRAT'"
+
+#  GLASN:
+#    file: "'GLASN'"
+  SNWDPT:
+    file: "'SNWDPT'"
+
+  GDRIV:
+    file: "'gdriv'"
+    tintv: 1
+    tavrg: 1
+    tunit: "'DAY'"
+  RFLOW: 
+    file: "'rflow'"
+    tintv: 1
+    tavrg: 1
+    tunit: "'DAY'"
+
+#  RRUNOF:
+#    file: "'rrunof'"
+#    dfmt: "'UR4'"
+#    tintv: 1
+#    tavrg: 1
+#    tunit: "'DAY'"

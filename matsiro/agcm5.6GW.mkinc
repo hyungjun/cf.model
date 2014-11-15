@@ -1,0 +1,84 @@
+
+######################
+# {prjDir}/Mkinclude
+######################
+
+root:
+  __order__: ['SYSTEM', 'RTYPE', 'NOFPE', 'PROJECT', 'PROJECT_EXT', 'SRCDIR', 'LIBDIR', 'BINDIR', 'STDFFLAGS', 'STDCFLAGS', 'STDLDFLAGS', 'STDCPPFLAGS', 'STDLIBS', 'INCDIR', 'SYSMAKEDIR', 'RTYPEDIR', 'PROJDIR', 'include', 'RESOLUTION', 'GCM', 'LIBNAMES', 'LIB', 'LIBRARY', 'LIBS', 'NONSTD', 'MKINCLUDE', 'FTRDIR', 'FTRFILE']
+  __locate__: {prjDir}
+
+  SYSTEM: Naam-IFC
+  RTYPE: parallel
+  NOFPE: 10
+  PROJECT: offmat
+  PROJECT_EXT:
+  LIBDIR: {prjDir}/lib/$(SYSTEM)
+  BINDIR: {prjDir}/bin/$(SYSTEM)
+
+  STDFFLAGS: $(SYSFFLAGS) $(DEBUG) $(CHECK)
+  STDCFLAGS: $(SYSCFLAGS) $(DEBUG)
+  STDLDFLAGS: $(SYSLDFLAGS) $(DEBUG) $(CHECK)
+  STDCPPFLAGS: $(SYSCPPFLAGS) $(ROPT) $(CPPOPT)$(OPTIONS)
+  STDLIBS:
+
+  SRCDIR: {prjDir}/src
+  INCDIR: {prjDir}/src/include
+  SYSMAKEDIR: {prjDir}/src/sysdep
+  RTYPEDIR: {prjDir}/src/runtype
+  PROJDIR: {prjDir}/src/proj
+
+  include: [$(SYSMAKEDIR)/Makedef.$(SYSTEM), $(RTYPEDIR)/$(RTYPE)/Mkinclude, $(PROJDIR)/$(PROJECT)/Mkinclude$(PROJECT_EXT)]
+
+  RESOLUTION: $(HRESOLUTION)$(MEMORYSIZE)$(VRESOLUTION)
+
+#  GCM: $(BINDIR)/agcm5.$(RESOLUTION).$(MODELNAME).PE$(NOFPE)
+  GCM: $(BINDIR)/agcm5.$(RESOLUTION)$(MODELNAME).$(RTYPE)
+#  LIBNAMES: agcm5$(RESOLUTION)$(LIBNAME).PE$(NOFPE)
+  LIBNAMES: agcm5$(RESOLUTION)$(LIBNAME).$(RTYPE)
+  LIB: lib$(LIBNAMES).a
+  LIBRARY: $(LIBDIR)/$(LIB)
+  LIBS: $(LINKOPT)-L$(LIBDIR) $(LINKOPT)-l$(LIBNAMES)
+
+  NONSTD: $(ATMOS) $(OCEAN) $(LAND) $(RIVER) $(USER) $(SPHERT) $(CUMULUS) $(LSCCLD) $(RADIATE) $(DRYADJ) $(IGWD) $(FFT) $(TRCR)
+
+  MKINCLUDE: $(SRCDIR)/Mkinclude
+
+  FTRDIR: $(SRCDIR)/..
+  FTRFILE: $(FTRDIR)/src.ftr
+
+
+######################################
+# {prjDir}/src/proj/offmat/Mkinclude
+######################################
+
+offmat:
+  __order__: ['HRESOLUTION','VRESOLUTION','GRESOLUTION','MEMORYSIZE','DEBUG','CHECK','OPTIONS','LIBNAME','MODELNAME','SPECIALDIR','SPECIALHDIR','SPECIAL','MAIN','ATMOS','OCEAN','USER','SPHERT','CUMULUS','LSCCLD','RADIATE','DRYADJ','IGWD','FFT']
+  __locate__: {prjDir}/src/proj/offmat
+
+  HRESOLUTION: 1deg
+  VRESOLUTION: l1s
+  GRESOLUTION: g50c
+  MEMORYSIZE: m
+  DEBUG:
+  CHECK:
+  OPTIONS: -DOPT_DEBUG -DOPT_KSNMAX=3 -DOPT_LWSFC=1 -DOPT_NSCPL=1000 -DOPT_NRDAT=100 -DOPT_IDXMIN=0 -DOPT_IDXMAX=16 -DOPT_IDSMIN=0 -DOPT_IDSMAX=13 -DOPT_KRVMAX=1 -DOPT_MATCHK -DOPT_LINGRD -DOPT_INVGRD -DOPT_NGDWRK=26179200
+  LIBNAME: $(PROJECT)
+  MODELNAME: $(PROJECT)
+  SPECIALDIR: proj/offmat
+  SPECIALHDIR: proj/matsiro
+  SPECIAL: matdrv.o matbnd.o matsfc.o matcnw.o matgnd.o matrof.o matsnw.o matpht.o
+  MAIN: cplmain.o
+  ATMOS: aadmnsfc-gswp2.o padmn-mry.o
+  OCEAN: noocn.o pgcpl-noocn.o
+  USER:
+  SPHERT:
+  CUMULUS:
+  LSCCLD:
+  RADIATE:
+  DRYADJ:
+  IGWD:
+  FFT:
+
+
+######################################
+# 
